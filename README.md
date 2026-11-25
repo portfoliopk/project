@@ -1,6 +1,6 @@
-# Universal Voice Translator
+# Live
 
-A mobile-first Next.js PWA for continuous voice-to-voice translation into Urdu using the Gemini Live Translation API.
+Live is a mobile-first Next.js PWA for voice-to-voice translation into Urdu.
 
 ## Features
 
