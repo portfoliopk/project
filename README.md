@@ -1,22 +1,43 @@
 # Universal Voice Translator
 
-Next.js App Router project. Records speech in the browser, sends the recording to a server-side OpenAI transcription endpoint for automatic source-language detection, then translates the transcript into the selected target language (Urdu by default).
+A mobile-first Next.js PWA for continuous voice-to-voice translation into Urdu using the Gemini Live Translation API.
+
+## Features
+
+- Automatically detects the spoken source language; there is no source-language selector.
+- Streams microphone audio while the user speaks.
+- Receives translated Urdu audio and plays it automatically.
+- Optional live captions show detected speech and Urdu translation.
+- Uses a short-lived Gemini ephemeral token so the long-lived API key is not sent to the browser.
+- PWA shell can be installed, but AI translation requires an internet connection.
 
 ## Setup
 
 1. Install dependencies: `npm install`
-2. Create `.env.local` and add: `OPENAI_API_KEY=your_key_here`
-3. Start locally: `npm run dev`
-4. Open `http://localhost:3000` and allow microphone access.
+2. Create `.env.local` and add `GEMINI_API_KEY=your_key_here`.
+3. Start locally: `npm run dev`.
+4. Open `http://localhost:3000` in a browser that supports microphone access and allow the microphone.
 
 ## Vercel
 
-In Project Settings → Environment Variables, add `OPENAI_API_KEY` for Production, Preview, and Development, then redeploy. Never put the key in client-side code or commit it to GitHub.
+In Project Settings → Environment Variables, add `GEMINI_API_KEY` for the required environments and redeploy. Never use a `NEXT_PUBLIC_` prefix for this secret.
 
-## Current behavior and limitations
+## Audio and API
 
-- Speech is recorded, then transcribed and translated when you press **Stop & translate**. This is turn-based voice translation, not simultaneous low-latency streaming.
-- Whisper transcription auto-detects supported spoken languages; recognition quality varies by language, accent, recording quality, and model support.
-- Translation defaults to Urdu and includes a target-language selector.
-- Requires an internet connection and a valid OpenAI API key. The PWA shell cache does not make AI transcription/translation available offline.
-- Audio is sent to OpenAI for transcription. Do not use for sensitive conversations without reviewing provider privacy and retention terms.
+- Live model: `gemini-3.5-live-translate-preview`.
+- Input audio is converted to mono PCM16 at 16 kHz and streamed in real time.
+- Output audio is PCM16 at 24 kHz and is played as it arrives.
+- The API route creates a one-use, short-lived ephemeral token. The browser uses that token to establish the Live API WebSocket.
+- The target language is fixed to Urdu (`ur`); source language detection is automatic.
+- Gemini's free tier is subject to quotas and availability. Free-tier content may be used by Google to improve its products; review Google's terms before using sensitive conversations.
+
+## Language support note
+
+Google's current Live Translation language list includes Urdu, Japanese and English, but does not list Pashto. Pashto recognition/translation therefore cannot be promised with this model and needs separate testing or a different pipeline/provider. Do not treat an unlisted language as supported.
+
+## Limitations
+
+- Live translation requires an internet connection and an available Gemini quota.
+- Browser microphone access requires HTTPS (localhost is allowed for development).
+- Audio output depends on the browser allowing playback after the user starts the session.
+- This is a live streaming implementation, not an offline translator.
